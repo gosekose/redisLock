@@ -19,7 +19,7 @@ public class LettuceDistributeLockFactory implements DistributeLockFactory {
     public DistributeLock createLock(String lockKey) {
         // lock을 얻는 값
         RCustomLockImpl lock = new RCustomLockImpl(redisTemplate);
-        lock.setLockKey(lockKey);
+        lock.setLock(lockKey);
         return new LettuceDistributeLock(lock);
     }
 

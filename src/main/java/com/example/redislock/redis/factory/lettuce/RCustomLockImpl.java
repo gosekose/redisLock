@@ -25,27 +25,23 @@ public class RCustomLockImpl implements RCustomLock {
 
     @Override
     public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
-        try {
-            String key = (String) redisTemplate.opsForValue().get(lockKey);
-            String LOCK = "lock";
+        int retryCount = 0;
+        int maxRetryCount = 10;
 
-            if (key == null) {
-                redisTemplate.opsForValue().set(lockKey, LOCK, timeOut, unit);
-            }
-            else {
-                long time = getTimeToMillis(timeOut, unit);
-                Thread.sleep(time);
-                key = (String) redisTemplate.opsForValue().get(lockKey);
-
-                if (key == null) {
-                    redisTemplate.opsForValue().set(lockKey, LOCK, timeOut, unit);
+        while (retryCount < maxRetryCount) {
+            try {
+                boolean success = lock(lockKey, timeOut, unit);
+                if (success) {
+                    return true;
+                } else {
+                    retryCount++;
+                    Thread.sleep(getTimeToMillis(timeOut, unit));
                 }
-                else throw new RedisLockException();
+            } catch (Exception e) {
+                throw new RedisLockException();
             }
-            return true;
-        } catch (Exception e) {
-            throw new RedisLockException();
         }
+        throw new RedisLockException();
     }
 
     @Override
@@ -56,7 +52,14 @@ public class RCustomLockImpl implements RCustomLock {
 
     @Override
     public boolean isLocked() {
+
+
         return false;
+    }
+
+    private boolean lock(String lockKey, long timeOut, TimeUnit unit) {
+        Boolean success = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCK", timeOut, unit);
+        return success != null && success;
     }
 
     private long getTimeToMillis(long timeOut, TimeUnit unit) {
@@ -71,4 +74,5 @@ public class RCustomLockImpl implements RCustomLock {
 
         return time;
     }
+
 }
