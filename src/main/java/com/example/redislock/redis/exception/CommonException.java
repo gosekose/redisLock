@@ -1,4 +1,4 @@
-package liar.memberservice.exception.exception;
+package com.example.redislock.redis.exception;
 
 public abstract class CommonException extends ApplicationException {
 

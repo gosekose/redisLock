@@ -1,7 +1,6 @@
-package liar.memberservice.exception.exception;
+package com.example.redislock.redis.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
 @Getter

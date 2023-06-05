@@ -1,8 +1,11 @@
 package com.example.redislock.redis;
 
-public interface RedisLock {
+import java.util.concurrent.TimeUnit;
 
-    String getLock();
+public interface DistributeLock {
 
+    boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException;
+    void unLock();
 
+    boolean isLocked();
 }

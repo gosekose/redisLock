@@ -10,17 +10,23 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Members {
+public class Member {
 
     @Id @GeneratedValue
     private Long id;
 
-    private String name;
-    private int age;
+    private String email;
+    private String password;
+    private Long money = 1_000L;
 
     @Builder
-    public Members(String name, int age) {
-        this.name = name;
-        this.age = age;
+    public Member(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    public Long minusMoney(long fee) {
+        if (money < fee) throw new IllegalArgumentException();
+        return money -= fee;
     }
 }

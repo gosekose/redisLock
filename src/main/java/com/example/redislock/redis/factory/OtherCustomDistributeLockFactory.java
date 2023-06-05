@@ -1,23 +1,34 @@
 package com.example.redislock.redis.factory;
 
 import com.example.redislock.redis.DistributeLock;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-public class OtherCustomDistributeLock implements DistributeLock {
-
+@Profile("others")
+@Component
+public class OtherCustomDistributeLockFactory implements DistributeLockFactory {
     @Override
-    public void unLock() {
-        // 다른 락이 구현된다면, unlock 오버라이딩
+    public DistributeLock createLock(String lockKey) {
+        // lock을 얻는 값
+        return new OtherCustomDistributeLock();
     }
 
-    @Override
-    public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
-        return false; // 다른 락이 구현된다면, tryLock 오버라이딩
-    }
+    private record OtherCustomDistributeLock() implements DistributeLock {
+        @Override
+        public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
+            return false;
+        }
 
-    @Override
-    public boolean isLocked() {
-        return false;
+        @Override
+        public void unLock() {
+
+        }
+
+        @Override
+        public boolean isLocked() {
+            return false;
+        }
     }
 }
