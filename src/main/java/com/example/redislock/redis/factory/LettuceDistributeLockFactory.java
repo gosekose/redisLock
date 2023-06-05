@@ -1,28 +1,29 @@
 package com.example.redislock.redis.factory;
 
 import com.example.redislock.redis.DistributeLock;
+import com.example.redislock.redis.factory.lettuce.RCustomLock;
+import com.example.redislock.redis.factory.lettuce.RCustomLockImpl;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
+@Profile("others")
 @Component
-@Profile("redisson")
 @RequiredArgsConstructor
-public class RedissonDistributeLockFactory implements DistributeLockFactory {
-    private final RedissonClient redissonClient;
-
+public class LettuceDistributeLockFactory implements DistributeLockFactory {
+    private final RedisTemplate<String, Object> redisTemplate;
     @Override
     public DistributeLock createLock(String lockKey) {
-        RLock lock = redissonClient.getLock(lockKey);
-        return new RedissonDistributeLock(lock);
+        // lock을 얻는 값
+        RCustomLockImpl lock = new RCustomLockImpl(redisTemplate);
+        lock.setLockKey(lockKey);
+        return new LettuceDistributeLock(lock);
     }
 
-    private record RedissonDistributeLock(RLock lock) implements DistributeLock {
-
+    private record LettuceDistributeLock(RCustomLock lock) implements DistributeLock {
         @Override
         public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
             return lock.tryLock(timeOut, unit);
@@ -30,12 +31,12 @@ public class RedissonDistributeLockFactory implements DistributeLockFactory {
 
         @Override
         public void unLock() {
-            lock.unlock();
+            lock.unLock();
         }
 
         @Override
         public boolean isLocked() {
-            return lock.isHeldByCurrentThread();
+            return lock.isLocked();
         }
-        }
+    }
 }

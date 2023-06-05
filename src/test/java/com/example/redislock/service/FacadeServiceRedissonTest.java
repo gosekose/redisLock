@@ -4,7 +4,6 @@ import com.example.redislock.domain.Member;
 import com.example.redislock.repository.MemberRepository;
 import com.example.redislock.service.dto.MemberDto;
 import com.example.redislock.service.dto.MemberIdDto;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("redisson")
 @SpringBootTest
-class MemberServiceTest {
+class FacadeServiceRedissonTest {
     @Autowired private FacadeService facadeService;
     @Autowired private MemberService memberService;
     @Autowired private MemberRepository memberRepository;
