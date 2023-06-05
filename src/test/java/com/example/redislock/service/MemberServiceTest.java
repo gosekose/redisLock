@@ -5,6 +5,8 @@ import com.example.redislock.repository.MemberRepository;
 import com.example.redislock.service.dto.MemberDto;
 import com.example.redislock.service.dto.MemberIdDto;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +18,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-@Transactional
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ActiveProfiles("redisson")
 @SpringBootTest
 class MemberServiceTest {
     @Autowired private FacadeService facadeService;
     @Autowired private MemberService memberService;
     @Autowired private MemberRepository memberRepository;
+    private Long memberId;
+
+    @BeforeEach
+    public void init() {
+        memberId = facadeService.save(new MemberDto("gosekose@naver.com", "1234"));
+    }
+
+    @AfterEach
+    public void clear() {
+        memberRepository.deleteAll();
+    }
 
     @Test
     @DisplayName("단일 스레드 저장 테스트")
@@ -38,17 +52,18 @@ class MemberServiceTest {
         Member member = memberService.findById(new MemberIdDto(saveId));
 
         //then
-        Assertions.assertThat(member.getEmail()).isEqualTo(email);
-        Assertions.assertThat(member.getPassword()).isEqualTo(password);
+        assertThat(member.getEmail()).isEqualTo(email);
+        assertThat(member.getPassword()).isEqualTo(password);
     }
 
     @Test
     @DisplayName("멀티 스레드 상황에서 저장 테스트")
     public void save_multi() throws Exception {
         //given
-        String email = "kose@naver.com";
         int threadCount = 32;
+        String email = "kose@naver.com";
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+
         List<Future<?>> futures = new ArrayList<>();
 
         //when
@@ -74,7 +89,7 @@ class MemberServiceTest {
 
         //then
         List<Member> members = memberRepository.findAllByEmail(email);
-        Assertions.assertThat(members.size()).isEqualTo(1);
+        assertThat(members.size()).isEqualTo(1);
         System.out.println(members.get(0).getPassword());
     }
 
@@ -82,16 +97,12 @@ class MemberServiceTest {
     @DisplayName("멀티 스레드 pay")
     public void pay_multi() throws Exception {
         //given
-        String email = "kose@naver.com";
         int threadCount = 32;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         List<Future<?>> futures = new ArrayList<>();
-        Long memberId = facadeService.save(new MemberDto(email, "1234"));
-
 
         //when
         for (int i = 0; i < threadCount; i++) {
-            int finalI = i;
             Future<?> future = executorService.submit(() -> {
                 try {
                     facadeService.pay(memberId, 1);
@@ -111,9 +122,7 @@ class MemberServiceTest {
         }
 
         //then
-        List<Member> members = memberRepository.findAllByEmail(email);
-        Assertions.assertThat(members.size()).isEqualTo(1);
-        System.out.println(members.get(0).getPassword());
-
+        Member findMember = memberService.findById(memberId);
+        assertThat(findMember.getMoney()).isEqualTo(1_000 - threadCount);
     }
 }

@@ -32,7 +32,6 @@ public class MemberService {
     @Transactional
     public Long pay(Long id, long fee) {
         Member member = findById(id);
-        if (member == null) throw new IllegalArgumentException("not member");
         return member.minusMoney(fee); // 남아있는 금액 반환
     }
 
@@ -42,7 +41,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public Member findById(Long id) {return memberRepository.findById(id).orElseThrow();}
+    public Member findById(Long id) {return memberRepository.findById(id).orElseThrow(() -> {throw new IllegalArgumentException("not found member");});}
 
     @Transactional(readOnly = true)
     public Member findByEmail(String email) {
