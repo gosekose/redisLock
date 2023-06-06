@@ -63,7 +63,7 @@ class FacadeServiceLettuceTest {
         //given
         int threadCount = 32;
         String email = "kose@naver.com";
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
 
         List<Future<?>> futures = new ArrayList<>();
 
@@ -98,8 +98,8 @@ class FacadeServiceLettuceTest {
     @DisplayName("멀티 스레드 pay")
     public void pay_multi() throws Exception {
         //given
-        int threadCount = 32;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        int threadCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
         List<Future<?>> futures = new ArrayList<>();
 
         //when

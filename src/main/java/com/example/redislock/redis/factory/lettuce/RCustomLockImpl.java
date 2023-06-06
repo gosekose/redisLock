@@ -26,7 +26,7 @@ public class RCustomLockImpl implements RCustomLock {
     @Override
     public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
         int retryCount = 0;
-        int maxRetryCount = 100;
+        int maxRetryCount = 1000;
 
         while (retryCount < maxRetryCount) {
             try {

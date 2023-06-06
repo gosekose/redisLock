@@ -36,7 +36,7 @@ public class RedisLockAop {
         DistributeLock lock = lockManager.getLock(lockKey);
 
         try {
-            boolean isLocked = lock.tryLock(50, TimeUnit.MILLISECONDS);
+            boolean isLocked = lock.tryLock(lock.getTime(), lock.getTimeUnit());
             if (!isLocked) throw new RedisLockException();
             return joinPoint.proceed();
 

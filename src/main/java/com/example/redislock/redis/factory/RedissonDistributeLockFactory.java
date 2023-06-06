@@ -22,6 +22,8 @@ public class RedissonDistributeLockFactory implements DistributeLockFactory {
     }
 
     private record RedissonDistributeLock(RLock lock) implements DistributeLock {
+        private static final long timeOut = 1000L;
+        private static final TimeUnit unit = TimeUnit.MILLISECONDS;
 
         @Override
         public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
@@ -37,5 +39,15 @@ public class RedissonDistributeLockFactory implements DistributeLockFactory {
         public boolean isLocked() {
             return lock.isHeldByCurrentThread();
         }
+
+        @Override
+        public long getTime() {
+            return timeOut;
         }
+
+        @Override
+        public TimeUnit getTimeUnit() {
+            return unit;
+        }
+    }
 }

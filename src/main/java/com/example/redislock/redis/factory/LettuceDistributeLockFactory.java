@@ -18,6 +18,7 @@ public class LettuceDistributeLockFactory implements DistributeLockFactory {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ServerInstance serverInstance;
+
     @Override
     public DistributeLock createLock(String lockKey) {
         // lock을 얻는 값
@@ -27,6 +28,9 @@ public class LettuceDistributeLockFactory implements DistributeLockFactory {
     }
 
     private record LettuceDistributeLock(RCustomLock lock) implements DistributeLock {
+        private static final long timeOut = 50L;
+        private static final TimeUnit unit = TimeUnit.MILLISECONDS;
+
         @Override
         public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
             return lock.tryLock(timeOut, unit);
@@ -40,6 +44,16 @@ public class LettuceDistributeLockFactory implements DistributeLockFactory {
         @Override
         public boolean isLocked() {
             return lock.isLocked();
+        }
+
+        @Override
+        public long getTime() {
+            return timeOut;
+        }
+
+        @Override
+        public TimeUnit getTimeUnit() {
+            return unit;
         }
     }
 }
