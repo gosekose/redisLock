@@ -1,9 +1,11 @@
 package com.example.redislock.redis.factory;
 
+import com.example.redislock.config.ServerInstance;
 import com.example.redislock.redis.DistributeLock;
 import com.example.redislock.redis.factory.lettuce.RCustomLock;
 import com.example.redislock.redis.factory.lettuce.RCustomLockImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -14,11 +16,13 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 public class LettuceDistributeLockFactory implements DistributeLockFactory {
+
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ServerInstance serverInstance;
     @Override
     public DistributeLock createLock(String lockKey) {
         // lock을 얻는 값
-        RCustomLockImpl lock = new RCustomLockImpl(redisTemplate);
+        RCustomLockImpl lock = new RCustomLockImpl(redisTemplate, serverInstance);
         lock.setLock(lockKey);
         return new LettuceDistributeLock(lock);
     }

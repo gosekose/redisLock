@@ -1,7 +1,7 @@
 package com.example.redislock.redis.factory.lettuce;
 
+import com.example.redislock.config.ServerInstance;
 import com.example.redislock.redis.exception.RedisLockException;
-import jakarta.annotation.PostConstruct;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +11,12 @@ import java.util.concurrent.TimeUnit;
 public class RCustomLockImpl implements RCustomLock {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final ServerInstance serverInstance;
     private String lockKey;
 
-
-    public RCustomLockImpl(RedisTemplate<String, Object> redisTemplate) {
+    public RCustomLockImpl(RedisTemplate<String, Object> redisTemplate, ServerInstance serverInstance) {
         this.redisTemplate = redisTemplate;
+        this.serverInstance = serverInstance;
     }
 
     @Override
@@ -46,19 +47,20 @@ public class RCustomLockImpl implements RCustomLock {
 
     @Override
     public void unLock() {
-        String key = (String) redisTemplate.opsForValue().get(lockKey);
-        if (key != null) redisTemplate.delete(lockKey);
+        String value = (String) redisTemplate.opsForValue().get(lockKey);
+        if (value != null) redisTemplate.delete(lockKey);
     }
 
     @Override
     public boolean isLocked() {
-
-
-        return false;
+        String currentThread = Thread.currentThread().toString();
+        String value = (String) redisTemplate.opsForValue().get(lockKey);
+        return value != null && value.equals(serverInstance + currentThread);
     }
 
     private boolean lock(String lockKey, long timeOut, TimeUnit unit) {
-        Boolean success = redisTemplate.opsForValue().setIfAbsent(lockKey, "LOCK", timeOut, unit);
+        String currentThread = Thread.currentThread().toString();
+        Boolean success = redisTemplate.opsForValue().setIfAbsent(lockKey, serverInstance.getInstanceId() + currentThread, timeOut, unit);
         return success != null && success;
     }
 
@@ -74,5 +76,4 @@ public class RCustomLockImpl implements RCustomLock {
 
         return time;
     }
-
 }
