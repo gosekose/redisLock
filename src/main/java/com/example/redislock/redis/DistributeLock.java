@@ -8,6 +8,6 @@ public interface DistributeLock {
     void unLock();
 
     boolean isLocked();
-    long getTime();
+    long getTimeOut();
     TimeUnit getTimeUnit();
 }

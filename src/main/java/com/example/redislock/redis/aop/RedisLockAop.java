@@ -10,8 +10,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.TimeUnit;
-
 @Aspect
 @Component
 @RequiredArgsConstructor
@@ -36,7 +34,7 @@ public class RedisLockAop {
         DistributeLock lock = lockManager.getLock(lockKey);
 
         try {
-            boolean isLocked = lock.tryLock(lock.getTime(), lock.getTimeUnit());
+            boolean isLocked = lock.tryLock(lock.getTimeOut(), lock.getTimeUnit());
             if (!isLocked) throw new RedisLockException();
             return joinPoint.proceed();
 

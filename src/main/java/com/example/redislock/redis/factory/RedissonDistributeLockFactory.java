@@ -41,7 +41,7 @@ public class RedissonDistributeLockFactory implements DistributeLockFactory {
         }
 
         @Override
-        public long getTime() {
+        public long getTimeOut() {
             return timeOut;
         }
 

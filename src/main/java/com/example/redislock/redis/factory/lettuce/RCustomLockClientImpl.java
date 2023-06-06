@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class RCustomLockImpl implements RCustomLock {
+public class RCustomLockClientImpl implements RCustomLockClient {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ServerInstance serverInstance;
     private String lockKey;
 
-    public RCustomLockImpl(RedisTemplate<String, Object> redisTemplate, ServerInstance serverInstance) {
+    public RCustomLockClientImpl(RedisTemplate<String, Object> redisTemplate, ServerInstance serverInstance) {
         this.redisTemplate = redisTemplate;
         this.serverInstance = serverInstance;
     }

@@ -2,8 +2,8 @@ package com.example.redislock.redis.factory;
 
 import com.example.redislock.redis.factory.lettuce.ServerInstance;
 import com.example.redislock.redis.DistributeLock;
-import com.example.redislock.redis.factory.lettuce.RCustomLock;
-import com.example.redislock.redis.factory.lettuce.RCustomLockImpl;
+import com.example.redislock.redis.factory.lettuce.RCustomLockClient;
+import com.example.redislock.redis.factory.lettuce.RCustomLockClientImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,12 +22,12 @@ public class LettuceDistributeLockFactory implements DistributeLockFactory {
     @Override
     public DistributeLock createLock(String lockKey) {
         // lock을 얻는 값
-        RCustomLockImpl lock = new RCustomLockImpl(redisTemplate, serverInstance);
+        RCustomLockClientImpl lock = new RCustomLockClientImpl(redisTemplate, serverInstance);
         lock.setLock(lockKey);
         return new LettuceDistributeLock(lock);
     }
 
-    private record LettuceDistributeLock(RCustomLock lock) implements DistributeLock {
+    private record LettuceDistributeLock(RCustomLockClient lock) implements DistributeLock {
         private static final long timeOut = 50L;
         private static final TimeUnit unit = TimeUnit.MILLISECONDS;
 
@@ -47,7 +47,7 @@ public class LettuceDistributeLockFactory implements DistributeLockFactory {
         }
 
         @Override
-        public long getTime() {
+        public long getTimeOut() {
             return timeOut;
         }
 

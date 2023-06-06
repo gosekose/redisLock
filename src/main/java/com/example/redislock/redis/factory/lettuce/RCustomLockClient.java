@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public interface RCustomLock {
+public interface RCustomLockClient {
 
     void setLock(String lockKey);
     boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException;
