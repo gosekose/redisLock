@@ -48,7 +48,7 @@ LettuceDistributeLockFactor
 - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/factory/LettuceDistributeLockFactor.java
 - RCustomLockClient를 생성한 후,  LettuceDistributeLock을 생성하는 인자로 주입합니다.
 - RCustomLockClientImpl은 RedissonClient를 대체하는 직접 구현한 구현체입니다.
-- 특이점은 락을 획득할 때까지 여러 번 while 문을 돌아
+- 특이점은 락을 획득할 때까지 여러 번 while 문을 돌아 락을 획득하는 과정을 수행하는 점 입니다. 따라서, 50L로 타임아웃을 설정하였습니다 (밀리초)
 
 ServerInstance
 - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/factory/lettuce/ServerInstance.java
