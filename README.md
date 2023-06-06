@@ -5,6 +5,7 @@ RedisLock 분산락 구현하기
 - RedissonClient와 같은 외부 라이브러리에 의존하지 않기 위해 DistributeLockManager 도입하였습니다.
 - DistributeLockManager는 DistributeLockFactory를 의존성 주입 받아서, 프로파일에서 설정한 lock 구현체 종류를 선택할 수 있습니다.
 - AOP에서는 DistributeLockManager를 의존성 주입받아서, 해당 구현체가 무엇인지 알지 못하도록 구성하였습니다.
+- 수정 전 문제가 된 소스: https://github.com/Liar-Dev/liar-dev-member/blob/main/src/main/java/liar/memberservice/common/aop/RedisLockAspect.java
 
 <br/><br/>
 # 2. 구조도
@@ -12,20 +13,22 @@ RedisLock 분산락 구현하기
 - RedisAop는 DistributeLockManager를 의존하고 있습니다. 
 - DistributeLockManager는 DistributeLockFactory에 의존하며, 현재 프로파일에 설정된 Factory에 의해 DistributeLock을 얻습니다. 
 - DistributeLock은 RedissonClient를 사용하는 RedissonDistributeLock, Redistemplate로 원자적 연산으로 구현한 LettuceDistributeLock 구현체가 있습니다. 
-- 그 결과, 프로파일 설정시에 두 구현체를 선택할 수 있고, AOP는 어떠한 구현체를 선택했는지 알 수 없기 때문에 코드 수정에 대한 유지보수성을 높일 수 있었습니다. 
+- 그 결과, 프로파일 설정 시에 두 구현체를 선택할 수 있고, AOP는 어떠한 구현체를 선택했는지 알 수 없으므로 코드 수정에 대한 유지보수성을 높일 수 있었습니다. 
+
 
 <br/><br/>
 # 3. 주요 기능 상세
 
 RedisLockAop
 - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/aop/RedisLockAop.java
-- Aop를 작성하는 로직입니다. DistributeLockManager를 20번째 줄에서 의존받고 있습니다. 
+- Aop를 작성하는 로직입니다. DistributeLockManager를 20번째 줄에서 의존 받고 있습니다. 
 - 36번째 줄에서 lockManager.getLock(lockKey)로 DistributeLock을 생성하여 락을 처리하는 로직을 구성하였습니다.
 <br/><br/>
 
 DistributeLockManager
 - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/DistributeLockManager.java
-- distributeLockFactory를 의존성 주입받으며, ConcurrentHashMap으로 lockMap을 형성하여 주어진 키가 lockMap에 없을 경우 새 값을 추가합니다. 
+- distributeLockFactory를 의존성 주입받으며, ConcurrentHashMap으로 lockMap을 형성하여 주어진 키가 lockMap에 없을 때 새 값을 추가합니다. 
+
 <br/><br/>
   
 DistributeLock
@@ -38,15 +41,14 @@ DistributeLock
 RedissonDistributeLockFactory
 - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/factory/RedissonDistributeLockFactory.java
 - DistributeLockFactory의 구현체로, RedissonClient의 라이브러리를 의존 받습니다.
-- 특이점은 redissonClient에 timeOut 시간을 짧게하면 테스트를 실패하여, 긴 시간을 주입하기 위해 1_000L을 입력하였습니다.(밀리초)
+- 특이점은 redissonClient에 timeOut 시간을 짧게 하면 테스트에 실패하여, 긴 시간을 주입하기 위해 1_000L을 입력하였습니다. (밀리초)
 <br/><br/>
 
-LettuceDistributeLockFactory
-- https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/factory/LettuceDistributeLockFactory.java
+LettuceDistributeLockFactor
+- https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/factory/LettuceDistributeLockFactor.java
 - RCustomLockClient를 생성한 후,  LettuceDistributeLock을 생성하는 인자로 주입합니다.
 - RCustomLockClientImpl은 RedissonClient를 대체하는 직접 구현한 구현체입니다.
-- 특이점은 락을 획득할 때 까지 여러 번 while문을 돌아야 하기 때문에 Thread.sleep() 시간을 50L으로 작게 설정하였습니다 (밀리초)
-<br/><br/>
+- 특이점은 락을 획득할 때까지 여러 번 while 문을 돌아
 
 ServerInstance
 - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/factory/lettuce/ServerInstance.java
@@ -93,8 +95,8 @@ RCustomLockClientImpl
 
 <br/><br/>
 # 4. 테스트
-  - 서버 기동시에 활성화된 프로파일에 redisson 혹은 lettuce를 작성하여야 합니다.
-  - 테스트 대상은 동일한 email로 회원가입에 대한 1개의 회원 가입 허용 및, 다수의 pay 요청에 대해 money 차감이 올바르게 되도록 하는 것 입니다.
+  - 서버 기동 시에 활성화된 프로파일에 redisson 혹은 lettuce를 작성하여야 합니다.
+  - 테스트 대상은 동일한 email로 회원가입에 대한 1개의 회원 가입 허용 및 다수의 pay 요청에 대해 money 차감이 올바르게 되도록 하는 것입니다.
   
   - Service 로직
     - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/service/MemberService.java
@@ -116,4 +118,6 @@ RCustomLockClientImpl
 # 5. 보안점
   - timeOut의 길이에 따라, 테스트를 성공하거나 실패하는 결과를 얻었습니다. 이는 적절한 시간을 계속 테스트하는 과정이 필요합니다.
   - 실제 Thread.sleep()하는 로직이 구성되어 있는데, 이 부분이 가장 취약한 로직이 될 것 같습니다.
+  - RedissonClient 외부 라이브러리를 사용함에도 불구하고 추상화 방법을 적용하지 않았던 코드에 대해서 깊이 반성하게 되었습니다.
+  - 실제 테스트를 진행한 결과 직접 구현한 코드는 8초가 소요되었습니다. 이는 성능상 매우 큰 취약점이 발생할 것 같습니다.
 
