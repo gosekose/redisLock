@@ -1,6 +1,5 @@
 package com.example.redislock.redis.factory.lettuce;
 
-import com.example.redislock.config.ServerInstance;
 import com.example.redislock.redis.exception.RedisLockException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,7 @@ public class RCustomLockImpl implements RCustomLock {
     @Override
     public boolean tryLock(long timeOut, TimeUnit unit) throws InterruptedException {
         int retryCount = 0;
-        int maxRetryCount = 10;
+        int maxRetryCount = 100;
 
         while (retryCount < maxRetryCount) {
             try {

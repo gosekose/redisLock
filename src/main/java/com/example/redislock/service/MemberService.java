@@ -25,7 +25,7 @@ public class MemberService {
             throw new IllegalArgumentException("이메일이 존재합니다.");
         }
 
-        log.info("{} 존재 X", memberDto.getEmail());
+        log.info("{} 존재 X, 현재 스레드 = {}", memberDto.getEmail(), Thread.currentThread());
         return memberRepository.save(Member.builder()
                 .email(memberDto.getEmail()).password(memberDto.getPassword()).build()).getId();
     }
@@ -33,6 +33,7 @@ public class MemberService {
     @Transactional
     public Long pay(Long id, long fee) {
         Member member = findById(id);
+        log.info("현재 금액 = {}, 현재 스레드 = {}", member.getMoney(), Thread.currentThread());
         return member.minusMoney(fee); // 남아있는 금액 반환
     }
 

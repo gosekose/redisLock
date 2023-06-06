@@ -1,18 +1,17 @@
 package com.example.redislock.redis.factory;
 
-import com.example.redislock.config.ServerInstance;
+import com.example.redislock.redis.factory.lettuce.ServerInstance;
 import com.example.redislock.redis.DistributeLock;
 import com.example.redislock.redis.factory.lettuce.RCustomLock;
 import com.example.redislock.redis.factory.lettuce.RCustomLockImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-@Profile("others")
+@Profile("lettuce")
 @Component
 @RequiredArgsConstructor
 public class LettuceDistributeLockFactory implements DistributeLockFactory {

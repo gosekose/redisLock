@@ -1,4 +1,4 @@
-package com.example.redislock.config;
+package com.example.redislock.redis.factory.lettuce;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
