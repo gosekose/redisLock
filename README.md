@@ -35,7 +35,7 @@ DistributeLock
 - https://github.com/gosekose/redisLock/blob/main/src/main/java/com/example/redislock/redis/DistributeLock.java
 - 분산락을 구현하는 인터페이스로 tryLock(), unLock() 등의 추상화 메서드를 가지고 있습니다.
 - getTimeOut(), getTimeUnit()은 테스트 결과, 외부 라이브러리 및 직접 구현한 구현체 간의 시간 측정에 따라 분산락 테스트가 성공 및 실패하는 것을 확인할 수 있었습니다.
-- RedissonClient는 getTime()을 길게 준다면 성공하지만, 직접 구현한 로직은 길게 준다면 Thead.sleep()으로 계속 기다리는 문제가 발생하여 두 메서드를 추상화하여 구현체에서 timeOut및 timeUnit을 설정하도록 하였습니다.    
+- RedissonClient는 getTime()을 길게 준다면 성공하지만, 직접 구현한 로직은 길게 준다면 Thread.sleep()으로 계속 기다리는 문제가 발생하여 두 메서드를 추상화하여 구현체에서 timeOut및 timeUnit을 설정하도록 하였습니다.    
 <br/><br/>
  
 RedissonDistributeLockFactory
