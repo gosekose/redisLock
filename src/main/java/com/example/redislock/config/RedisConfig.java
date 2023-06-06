@@ -53,9 +53,4 @@ public class RedisConfig {
         config.useSingleServer().setDnsMonitoringInterval(30000000L);
         return Redisson.create(config);
     }
-
-    @Bean
-    public ServerInstance serverInstance() {
-        return new ServerInstance();
-    }
 }
